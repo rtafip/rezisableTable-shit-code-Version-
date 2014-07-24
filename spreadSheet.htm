@@ -17,12 +17,12 @@
 			}
 			td{
 				border: 1px solid;
-				width: 56px;
-				height: 18px;
+				/*width: 56px;
+				height: 18px;*/
 				text-align:center;
+				border-color: grey;
 				/*algin:center;
 				vertical-align: middle;*/
-
 				
 			}
 
@@ -135,6 +135,8 @@
 					content = arguments[0];
 				}
 				var newUnit = document.createElement("td");
+				newUnit.style.width = "56px";
+				newUnit.style.height = "18px";
 				var text = document.createTextNode(content);
 
 				if(arguments[1] === "editable"){
@@ -293,11 +295,14 @@
 				var nowCell =  hitTest.resizeCell;
 				var hitHotRegion = hitTest.hitHotRegion;
 
+				var resizedTr =  hitTest.resizedTr;
+				var resizedTd = hitTest.resizedTd;
+
 				var moveX = 0;
 				var moveY = 0;
 
-				console.log("isPressDown = " + isPressDown);
-				console.log("lockHitTest = " + lockHitTest);
+				// console.log("isPressDown = " + isPressDown);
+				// console.log("lockHitTest = " + lockHitTest);
 
 				if((isPressDown && hitHotRegion) || (isPressDown && resized)){
 
@@ -319,6 +324,8 @@
 					console.log("nowCell.offsetWidth = " + nowCell.offsetWidth);
 					console.log("offsetWidth + movex = " + (nowCell.offsetWidth + moveX));
 
+					// console.log(tr[i].childNodes[resizedTd]);
+					// console.log("now resizedTd is  " + resizedTd);
 
 
 
@@ -328,9 +335,15 @@
 
 						console.log("old offset is " + nowCell.offsetWidth);
 
+						console.log("resizedTd = " + resizedTd);
+
 						// console.log("padding is " + (nowCell.offsetWidth - nowCell.clientWidth));
 
-						nowCell.style.width = (nowCell.offsetWidth + moveX - padding * 2 - 1*2 ) + "px";//2padding - 1 dont know why; 1 may be border
+						// nowCell.style.width = (nowCell.offsetWidth + moveX - padding * 2 - 1 ) + "px";//2padding - 1 dont know why; 1 may be border
+						var oldWidth = tr[resizedTr].childNodes[resizedTd].offsetWidth;
+						for(i = 0;i < tr.length;i++){
+							tr[i].childNodes[resizedTd].style.width = (oldWidth + moveX - padding * 2 - 1) + "px";
+						}
 
 						console.log("now width is " + nowCell.style.width);
 
@@ -341,11 +354,17 @@
 
 						console.log("move vertical");
 
-						nowCell.style.height = (nowCell.offsetHeight + moveY - padding * 2 - 1*2) + "px";
+						var oldHeight = tr[resizedTr].childNodes[resizedTd].offsetHeight;
+
+						for(i = 0;i < tr[resizedTr].length;i++){
+							tr[resizedTr].childNodes[resizedTd].style.width = (oldHeight + moveY - padding * 2 - 1) + "px";
+						}
+
+						nowCell.style.height = (nowCell.offsetHeight + moveY - padding * 2 - 1) + "px";
 						resized = true;
 					}else if(direction == "out of border"){
 
-
+						lockHitTest = true;
 
 					}else{
 
@@ -415,6 +434,8 @@
 				var table = document.getElementById("myTable");
 
 				var nowCell;
+				var resizedTr;
+				var resizedTd;
 
 				if(table){
 					nowCell = tr[rowNo].childNodes[colNo];
@@ -444,6 +465,8 @@
 						hitHotRegion = true;
 						direction = "horizontal";
 						resizeCell = leftCell;
+						resizedTr = rowNo;
+						resizedTd = colNo - 1;
 
 
 					}else if(x < leftDistance + offsetWidth && x > leftDistance + offsetWidth - horizontalBorderRegion && !lockHitTest){
@@ -452,6 +475,8 @@
 						hitHotRegion = true;
 						direction = "horizontal";
 						resizeCell = nowCell;
+						resizedTr = rowNo;
+						resizedTd = colNo;
 
 
 					}else if(y < topDistance + verticalBorderRegion && y > topDistance && !lockHitTest){
@@ -460,6 +485,8 @@
 						nowCell.style.cursor = "n-resize";
 						direction = "vertical";
 						resizeCell = upCell;
+						resizedTr = rowNo - 1;
+						resizedTd = colNo;
 
 					}else if(y < topDistance + offsetHeight && y > topDistance + offsetHeight - verticalBorderRegion && !lockHitTest){
 
@@ -467,22 +494,31 @@
 						nowCell.style.cursor = "n-resize";
 						direction = "vertical";
 						resizeCell = nowCell;
+						resizedTr = rowNo;
+						resizedTd = colNo;
 					}else{
 
 						if(resized){
 							hitHotRegion = true;
 							resizeCell = lastResizeCell;
 							direction = lastDirection;
+							resizedTr = lastResizeTr;
+							resizedTd = lastResizeTd;
 						}else{
 							hitHotRegion = false;
 							nowCell.style.cursor = "";
 							direction = "out of border";
+							if(isPressDown){
+								lockHitTest = true;
+							}
 						}
 
 					}
 
 					lastResizeCell = resizeCell;
 					lastDirection = direction;
+					lastResizeTr = resizedTr;
+					lastResizeTd = resizedTd;
 
 				}
 
@@ -490,6 +526,8 @@
 				return{
 					direction : direction ,
 					resizeCell : resizeCell ,
+					resizedTd : resizedTd ,
+					resizedTr : resizedTr ,
 					hitHotRegion : hitHotRegion
 				}
 
