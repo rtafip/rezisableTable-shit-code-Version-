@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<style>
+
+			body{
+				height: 1000px;
+			}
+
+			table{
+				border: 1px solid;
+				text-align:center;
+				border-collapse: collapse;
+				font-family: "Microsoft YaHei" ! important;
+			}
+			td{
+				border: 1px solid;
+				width: 56px;
+				height: 18px;
+				text-align:center;
+				/*algin:center;
+				vertical-align: middle;*/
+
+				
+			}
+
+			td:active{
+				border-color: #123456;
+			}
+
+			form{
+				display: inline;
+			}
+
+			#top{
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			#left{
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			#funinput{
+				color:grey;
+			}
+
+		</style>
+	</head>
+
+	<body onmousemove="showCursorPosition(event)" onmousedown="mouseDown(event)" onmouseup="mouseUp(event)">
+
+		<button onclick="createTable()">create a table</button>
+
+		<button onclick="addUnit()">add a unit</button>
+
+		<button onclick="addBlankLine()">add a blank line</button>
+
+		<button onclick="removeCol()">remove a column</button>
+
+		<button onclick="removeFullCol()">remove a full column</button>
+
+		<button onclick="removeLine()">remove a line</button>
+
+		<button onclick="removeTable()">remove the table</button>
+
+		<br>
+
+		<button onclick="createSpreadSheet()">create a spreadsheet</button>
+
+		<button onclick="changeStyle()">change style</button>
+
+		<form>
+			<input type="text" id="funinput" value="input a function name" onclick="clearHint()">
+		</form>
+
+		<button id="testButton" onclick="testAFunction()">run</button>
+
+		<br>
+
+		<button onclick="addFullCol()">add a full column</button>
+
+		<button onclick="addFullLine()">add a full line</button>
+
+		<label id="pos"></label>
+
+		<script>
+
+			var defaultSpreadSheetRow = 15;
+			var defaultSpreadSheetCol = 10;
+
+			var tableX = 9;//13;
+			var tableY = 86;//90;
+
+			var nowCol = 0;
+			var nowRow = 0;
+
+			var isPressDown = false;
+			var lastX;
+			var lastY;
+			var resized;
+			var lockHitTest = false;
+
+			var padding;
+
+			function createTable () {
+				var newTable = document.createElement("table");
+				newTable.setAttribute("id","myTable");
+				// newTable.setAttribute("onmouseover","showCursorPosition(event)");
+				document.body.appendChild(newTable);
+				addBlankLine();
+			}
+
+			function addBlankLine () {
+				var newBlankLine = document.createElement("tr");
+				document.getElementById("myTable").appendChild(newBlankLine);
+			}
+
+			function addUnit () {
+				var content = 0;
+				if(arguments.length === 0){
+					content = "";
+				}else{
+					content = arguments[0];
+				}
+				var newUnit = document.createElement("td");
+				var text = document.createTextNode(content);
+
+				if(arguments[1] === "editable"){
+					newUnit.setAttribute("contenteditable","true");
+				}
+
+				if(typeof arguments[2] != "undefined" && arguments[2] != ""){
+					// console.log(arguments[2]);
+					newUnit.setAttribute("id",arguments[2]);
+				}
+
+				// newUnit.setAttribute("onmousedown","mouseDown(event)");
+
+				// newUnit.setAttribute("onmouseup","mouseUp(event)")
+
+				newUnit.appendChild(text);
+
+				var lastLine = document.getElementsByTagName("tr");
+				lastLine[lastLine.length -  1].appendChild(newUnit);
+
+				padding = lastLine[0].childNodes[0].offsetWidth - lastLine[0].childNodes[0].clientWidth;
+			}
+
+			function addFullCol () {
+
+				var tr = document.getElementsByTagName("tr");
+
+				var newUnit = document.createElement("td");
+				var text = document.createTextNode(String.fromCharCode(65+nowCol));
+				newUnit.setAttribute("id","left");
+
+					// String.fromCharCode(nowCol));
+				newUnit.appendChild(text);
+				nowCol++;
+
+				tr[0].appendChild(newUnit);
+
+				for(i = 1;i < tr.length;i++){
+					newUnit = document.createElement("td");
+					text = document.createTextNode("");
+					newUnit.setAttribute("contenteditable","true");
+					// newUnit.setAttribute("onmousedown","mouseDown(event)");
+					// newUnit.setAttribute("onmouseup","mouseUp(event)");
+					newUnit.appendChild(text);
+					tr[i].appendChild(newUnit);
+				}
+				
+			}
+
+			function addFullLine () {
+				if(hasANewLine() == false)
+				{
+					addBlankLine();
+				}
+
+				addUnit(nowRow,"","top");
+
+				for(i = 1;i < nowCol ; i++){
+					addUnit("","editable");
+				}
+
+				nowRow++;
+			}
+
+			function hasANewLine () {
+				var lastLine = document.getElementsByTagName("tr");
+				if(lastLine[lastLine.length - 1].innerHTML === ""){
+					return true;
+				}else{
+					return false;
+				}
+			}
+
+			function removeCol () {
+				var lastLine = document.getElementsByTagName("tr");
+				var parent = lastLine[lastLine.length - 1];
+				var lastCol = document.getElementsByTagName("td");
+				try{
+					parent.removeChild(lastCol[lastCol.length - 1]);
+				}
+				catch(err){
+					alert("please remove unnecessary lines first!")
+				}
+			}
+
+			function removeFullCol(){
+				var tr = document.getElementsByTagName("tr");
+
+				for(i = 0;i < tr.length;i++){
+					tr[i].removeChild(tr[i].lastChild);
+				}
+
+				nowCol--;
+			}
+
+			function removeLine () {
+				var parent = document.getElementById("myTable");
+				var lastLine = document.getElementsByTagName("tr");
+				parent.removeChild(lastLine[lastLine.length - 1]);
+				nowRow--;
+			}
+
+			function removeTable () {
+				var table = document.getElementById("myTable");
+				document.body.removeChild(table);
+			}
+
+			function createSpreadSheet(){
+				createTable();
+				// removeLine();
+
+				addUnit("","","topLeft");
+
+				for(i = 1,ascii = 65;i < defaultSpreadSheetCol;i++,ascii++){
+					addUnit(String.fromCharCode(ascii),"","left");
+				}
+
+
+				for(i = 1; i < defaultSpreadSheetRow; i++){
+					addBlankLine();
+					addUnit(i,"","top");
+					for(j = 1; j < defaultSpreadSheetCol; j++){
+						addUnit("","editable");
+					}	
+				}
+				nowRow = defaultSpreadSheetRow;
+				nowCol = defaultSpreadSheetCol;
+			}
+
+			function showCursorPosition(event){
+				var x = event.clientX;
+				var y = event.clientY;
+				var label = document.getElementById("pos");
+				var tr = document.getElementsByTagName("tr");
+				var table = document.getElementById("myTable");
+				
+				var cor = judgeWhichTd(x,y);
+				var row;
+				var col;
+
+				if(table){
+					row = tr[cor[0]].childNodes[0];
+					col = tr[0].childNodes[cor[1]];
+					label.innerHTML = "x:" + x + " y:" + y + " " + col.innerHTML + row.innerHTML;
+				}
+
+
+				
+
+				
+
+
+				var hitTest = judgeDirection(x,y,cor[0],cor[1],cor[2],cor[3],resized);
+
+				var direction = hitTest.direction;
+				var nowCell =  hitTest.resizeCell;
+				var hitHotRegion = hitTest.hitHotRegion;
+
+				var moveX = 0;
+				var moveY = 0;
+
+				console.log("isPressDown = " + isPressDown);
+				console.log("lockHitTest = " + lockHitTest);
+
+				if((isPressDown && hitHotRegion) || (isPressDown && resized)){
+
+					console.log("hitHotRegion = " + hitHotRegion);
+
+					// padding = nowCell.offsetWidth - nowCell.clientWidth;
+
+					console.log("nowCell's offsetWidth is " + nowCell.offsetWidth);
+
+					lockHitTest = true;
+
+					console.log("press down");
+
+					moveX = x - lastX;
+					moveY = y - lastY;
+
+					console.log("movex = " + moveX);
+					console.log("lastX = " + lastX);
+					console.log("nowCell.offsetWidth = " + nowCell.offsetWidth);
+					console.log("offsetWidth + movex = " + (nowCell.offsetWidth + moveX));
+
+
+
+
+					if(direction == "horizontal"){
+
+						console.log("move horizontal");
+
+						console.log("old offset is " + nowCell.offsetWidth);
+
+						// console.log("padding is " + (nowCell.offsetWidth - nowCell.clientWidth));
+
+						nowCell.style.width = (nowCell.offsetWidth + moveX - padding * 2 - 1*2 ) + "px";//2padding - 1 dont know why; 1 may be border
+
+						console.log("now width is " + nowCell.style.width);
+
+						console.log("now offset is " + nowCell.offsetWidth);
+
+						resized = true;
+					}else if(direction == "vertical"){
+
+						console.log("move vertical");
+
+						nowCell.style.height = (nowCell.offsetHeight + moveY - padding * 2 - 1*2) + "px";
+						resized = true;
+					}else if(direction == "out of border"){
+
+
+
+					}else{
+
+					}
+
+
+				
+				}
+				lastX = x;
+				lastY = y;
+			}
+
+			function testAFunction () {
+				var fun = document.getElementById("funinput");
+				console.log(fun.value);
+				// (fun.innerHTML)();
+				window[fun.value]();
+			}
+
+			function clearHint(){
+				var input = document.getElementById("funinput");
+					input.value = "";
+					input.style.color = "black";
+			}
+
+			function judgeWhichTd(x,y){
+				var tr = document.getElementsByTagName("tr");
+				var table = document.getElementById("myTable");
+				// var td = document.getElementsByTagName("td");
+				var leftWidth = tableX;
+				var topheight = tableY;
+				var tableWidth
+
+				// console.log(table);
+
+				if(table){
+					tableWidth = table.offsetWidth;
+				}
+				var trNo = 0;
+				var tdNo = 0;
+				for(i = 0;i < tr.length;i++){
+					// console.log("y = " + y);
+					// console.log("topheight + offset = " + (topheight + tr[i].offsetHeight ));
+					// console.log("topheight = " + topheight);
+					if(y > topheight && y < topheight + tr[i].offsetHeight && x <= tableWidth + 5){
+						trNo = i;
+						for(j = 0;j < tr[i].childNodes.length;j++){
+							if(x > leftWidth && x < leftWidth + tr[i].childNodes[j].offsetWidth){
+								tdNo = j;
+								break;
+							}
+						leftWidth += tr[i].childNodes[j].offsetWidth;
+						}
+						
+						break;
+					}
+					topheight += tr[i].offsetHeight;
+					
+				}
+
+				return [trNo,tdNo,leftWidth,topheight];
+
+			}
+
+			function judgeDirection (x,y,rowNo,colNo,leftDistance,topDistance) {
+				var tr = document.getElementsByTagName("tr");
+				var table = document.getElementById("myTable");
+
+				var nowCell;
+
+				if(table){
+					nowCell = tr[rowNo].childNodes[colNo];
+					
+					if(colNo > 0){
+						var leftCell = tr[rowNo].childNodes[colNo - 1];
+					}
+					if(rowNo > 0){
+						var upCell = tr[rowNo - 1].childNodes[colNo];
+					}
+					var offsetWidth = nowCell.offsetWidth;
+					var offsetHeight = nowCell.offsetHeight;
+
+					var horizontalBorderRegion = 10;
+					var verticalBorderRegion = 5;
+
+					var hitHotRegion;
+					var direction = ""; 
+					var resizeCell;
+
+				// console.log("leftDistance = " + leftDistance);
+
+
+					if(x < leftDistance + horizontalBorderRegion && x > leftDistance && !lockHitTest){
+
+						nowCell.style.cursor = "e-resize";
+						hitHotRegion = true;
+						direction = "horizontal";
+						resizeCell = leftCell;
+
+
+					}else if(x < leftDistance + offsetWidth && x > leftDistance + offsetWidth - horizontalBorderRegion && !lockHitTest){
+
+						nowCell.style.cursor = "e-resize";
+						hitHotRegion = true;
+						direction = "horizontal";
+						resizeCell = nowCell;
+
+
+					}else if(y < topDistance + verticalBorderRegion && y > topDistance && !lockHitTest){
+
+						hitHotRegion = true;
+						nowCell.style.cursor = "n-resize";
+						direction = "vertical";
+						resizeCell = upCell;
+
+					}else if(y < topDistance + offsetHeight && y > topDistance + offsetHeight - verticalBorderRegion && !lockHitTest){
+
+						hitHotRegion = true;
+						nowCell.style.cursor = "n-resize";
+						direction = "vertical";
+						resizeCell = nowCell;
+					}else{
+
+						if(resized){
+							hitHotRegion = true;
+							resizeCell = lastResizeCell;
+							direction = lastDirection;
+						}else{
+							hitHotRegion = false;
+							nowCell.style.cursor = "";
+							direction = "out of border";
+						}
+
+					}
+
+					lastResizeCell = resizeCell;
+					lastDirection = direction;
+
+				}
+
+
+				return{
+					direction : direction ,
+					resizeCell : resizeCell ,
+					hitHotRegion : hitHotRegion
+				}
+
+
+
+			}
+
+			// function mouseMove1(event){
+			// 	if(!isPressDown){
+			// 		// setCuresor;
+			// 	}else{
+			// 		var offset = 10;
+			// 		if(resizeinfo.direction === "h"){
+			// 			// resizeCol
+			// 		}else{
+			// 			// resizeRow;
+			// 		}
+			// 	}
+
+			// }
+
+			function mouseDown (event){
+				isPressDown = true;
+				// resizeInfo = {directiion: Horizontal, position:{33,33}};
+			}
+
+			function mouseUp (event) {
+				isPressDown = false;
+				//table.cursor = "";
+				resized = false;
+				lockHitTest = false;
+				hitHotRegion = false;
+			}
+
+		</script>
+
+		
+
+	</body>
+
+
+</html>
