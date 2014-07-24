@@ -356,11 +356,13 @@
 
 						var oldHeight = tr[resizedTr].childNodes[resizedTd].offsetHeight;
 
-						for(i = 0;i < tr[resizedTr].length;i++){
-							tr[resizedTr].childNodes[resizedTd].style.width = (oldHeight + moveY - padding * 2 - 1) + "px";
+						for(i = 0;i < tr[resizedTr].childNodes.length;i++){
+
+							tr[resizedTr].childNodes[i].style.height = (oldHeight + moveY - padding * 2 - 1) + "px";
+							console.log(tr[resizedTr].childNodes[i].style.height);
 						}
 
-						nowCell.style.height = (nowCell.offsetHeight + moveY - padding * 2 - 1) + "px";
+						// nowCell.style.height = (nowCell.offsetHeight + moveY - padding * 2 - 1) + "px";
 						resized = true;
 					}else if(direction == "out of border"){
 
