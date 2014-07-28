@@ -1,0 +1,50 @@
+			body{
+				height: 1000px;
+			}
+
+			table{
+				border: 1px solid;
+				text-align:center;
+				border-collapse: collapse;
+				font-family: "Microsoft YaHei" ! important;
+			}
+			td{
+				border: 1px solid;
+				/*width: 56px;
+				height: 18px;*/
+				text-align:center;
+				border-color: grey;
+				/*algin:center;
+				vertical-align: middle;*/
+				
+			}
+
+			td:active{
+				border-color: #123456;
+			}
+
+			form{
+				display: inline;
+			}
+
+			#top{
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			#left{
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			#funinput{
+				color:grey;
+			}
