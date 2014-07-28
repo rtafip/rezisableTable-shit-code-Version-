@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>spreadSheet</title>
+    <link rel="stylesheet" href="spreadSheet.css" type="text/css" />
+    <script src="jquery-1.11.1.min.js"></script>
+    <script src="spreadSheet.js"></script>
+</head>
+<body>
+		<button onclick="createTable()">create a table</button>
+
+		<button onclick="addUnit()">add a unit</button>
+
+		<button onclick="addBlankLine()">add a blank line</button>
+
+		<button onclick="removeCol()">remove a column</button>
+
+		<button onclick="removeFullCol()">remove a full column</button>
+
+		<button onclick="removeLine()">remove a line</button>
+
+		<button onclick="removeTable()">remove the table</button>
+
+		<br>
+
+		<button onclick="createSpreadSheet()">create a spreadsheet</button>
+
+		<button onclick="changeStyle()">change style</button>
+
+		<form>
+			<input type="text" id="funinput" value="input a function name" onclick="clearHint()">
+		</form>
+
+		<button id="testButton" onclick="testAFunction()">run</button>
+
+		<br>
+
+		<button onclick="addFullCol()">add a full column</button>
+
+		<button onclick="addFullLine()">add a full line</button>
+
+		<label id="pos"></label>
+
+</body>
+</html>
